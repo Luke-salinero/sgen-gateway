@@ -149,8 +149,6 @@ secrets.env
 *.pem
 *.cert
 
-# Logs (gateway logs may contain payloads)
-logs/
 
 # Cache or temporary job storage
 tmp/
