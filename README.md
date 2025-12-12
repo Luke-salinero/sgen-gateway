@@ -2,6 +2,18 @@
 
 This guide outlines the structure, requirements, and validation rules for the JSON configuration file used by the application. It ensures that configurations are correctly formatted and validated before execution.
 
+## API endpoints
+
+You can reach the gateway over HTTPS (e.g., `https://sgen-api.bigsigma.tech`). The FastAPI application exposes the following public routes:
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET`  | `/health` | Returns service name, version, mode, and status for monitoring. |
+| `GET`  | `/mode` | Reports the gateway's current mode (mock or live). |
+| `POST` | `/debug/echo` | Echoes any JSON payload for quick connectivity/debug checks. |
+| `POST` | `/submit` | Validates and processes an S-Gen submission; in mock mode responds with a deterministic bitstring result. |
+| `POST` | `/v1/sgen/jobs` | Creates a job using the configured compute adapter and returns job status/result metadata. |
+
 ---
 
 ## Required Fields
