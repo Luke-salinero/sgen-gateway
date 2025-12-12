@@ -1,10 +1,12 @@
 import uuid
+
 from fastapi import APIRouter, HTTPException
+
 from app.core.config import get_settings
 from app.models.sgen import (
+    SGenErrorResponse,
     SGenSubmitRequest,
     SGenSubmitResponse,
-    SGenErrorResponse,
 )
 
 router = APIRouter(prefix="", tags=["sgen"])

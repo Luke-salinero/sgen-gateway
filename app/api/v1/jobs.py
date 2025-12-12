@@ -3,9 +3,8 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.config import get_settings
-from app.models.job import InternalJobRequest
-from app.models.responses import JobCreatedResponse, JobResultResponse
-from app.models.job import JobCreateRequest
+from app.models.job import InternalJobRequest, JobCreateRequest
+from app.models.responses import JobResultResponse
 from app.services.compute_adapter import ComputeAdapter, generate_job_id
 
 logger = logging.getLogger(__name__)

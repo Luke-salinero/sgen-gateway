@@ -1,4 +1,5 @@
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
+
 from pydantic import BaseModel, Field, validator
 
 

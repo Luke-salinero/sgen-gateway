@@ -153,3 +153,7 @@ secrets.env
 # Cache or temporary job storage
 tmp/
 cache/
+
+# Allow pre-commit config
+!.pre-commit-config.yaml
+

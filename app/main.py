@@ -2,11 +2,9 @@ import logging
 
 from fastapi import FastAPI
 
-from app.api.v1 import health, jobs
+from app.api.v1 import health, jobs, sgen_submit
 from app.core.config import get_settings
 from app.core.logging import configure_logging
-from app.api.v1 import sgen_submit
-
 
 
 def create_app() -> FastAPI:
@@ -27,7 +25,10 @@ def create_app() -> FastAPI:
     logger = logging.getLogger(__name__)
     logger.info(
         "S-Gen Gateway starting",
-        extra={"mode": settings.sgen_mode, "compute_base_url": settings.compute_base_url},
+        extra={
+            "mode": settings.sgen_mode,
+            "compute_base_url": settings.compute_base_url,
+        },
     )
 
     return app
