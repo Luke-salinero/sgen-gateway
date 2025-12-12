@@ -1,5 +1,3 @@
-# CONFIGURATION\_GUIDE.md
-
 ## Overview
 
 This guide outlines the structure, requirements, and validation rules for the JSON configuration file used by the application. It ensures that configurations are correctly formatted and validated before execution.
@@ -24,7 +22,7 @@ This guide outlines the structure, requirements, and validation rules for the JS
 | `ranges`      | Array   | List of `[start, end]` pairs defining processing ranges.         | Each pair must be an array of two binary strings starting with `"0b"`. `start` must be ≤ `end`. |
 | `prune_masks` | Array   | List of binary strings representing masks to prune certain data. | Each string must start with `"0b"`.                                                             |
 | `find_masks`  | Array   | List of binary strings representing masks to find specific data. | Each string must start with `"0b"`.                                                             |
-| `bit_flip`    | Boolean | Mode flag to toggle flipping bits and pruning once more.         | Defaults to 'flase' if omitted. # TODO implement                                                |
+| `bit_flip`    | Boolean | Mode flag to toggle flipping bits and pruning once more.         | Defaults to 'false' if omitted. # TODO implement                                                |
 
 ---
 
