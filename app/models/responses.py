@@ -4,12 +4,24 @@ from pydantic import BaseModel, Field
 
 
 class JobCreatedResponse(BaseModel):
+    """Information pertaining to the initial creation of an SGen Job
+
+    Args:
+        BaseModel
+    """
+
     job_id: str
     status: str = Field(..., description="queued, mocked, running, etc.")
     mode: str = Field(..., description="mock or live")
 
 
 class JobResultResponse(BaseModel):
+    """Information pertaining to the result of an SGen job
+
+    Args:
+        BaseModel
+    """
+
     job_id: str
     status: str
     mode: str

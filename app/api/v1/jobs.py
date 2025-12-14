@@ -2,10 +2,9 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.core.config import get_settings
-from app.models.job import InternalJobRequest, JobCreateRequest
-from app.models.responses import JobResultResponse
-from app.services.compute_adapter import ComputeAdapter, generate_job_id
+from app.core import get_settings
+from app.models import InternalJobRequest, JobCreateRequest, JobResultResponse
+from app.services import ComputeAdapter, generate_job_id
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +12,10 @@ router = APIRouter(prefix="/v1/sgen", tags=["jobs"])
 
 
 def get_compute_adapter() -> ComputeAdapter:
+    """Returns the Computer Adapter class, which mananges the real and mock
+    communication between the compute node and the user
+    """
+
     return ComputeAdapter()
 
 
@@ -26,6 +29,14 @@ async def create_job(
 
     In mock mode: returns a synthetic result immediately.
     In live mode: dispatches to the compute node and returns its response.
+
+    Args:
+        request (JobCreateRequest): Initial create request for SGen jobs
+        adapter (ComputeAdapter): Mananges the real and mock communication between
+                                  the compute node and the user
+
+    Returns:
+        JobResultResponse - Information pertaining to the result of an SGen job
     """
     settings = get_settings()
     mode = settings.sgen_mode.lower()

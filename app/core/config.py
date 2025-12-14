@@ -5,6 +5,12 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    """Manages the base settings for SGen requests
+
+    Args:
+        BaseSettings
+    """
+
     # "mock" or "live"
     sgen_mode: str = Field(default="mock", alias="SGEN_MODE")
 
@@ -26,4 +32,9 @@ class Settings(BaseSettings):
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
+    """Gets the settings
+
+    Returns:
+        Settings (Class)
+    """
     return Settings()

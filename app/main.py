@@ -2,12 +2,20 @@ import logging
 
 from fastapi import FastAPI
 
-from app.api.v1 import health, jobs, sgen_submit
-from app.core.config import get_settings
-from app.core.logging import configure_logging
+from app.api import health, jobs, sgen_submit
+from app.core import configure_logging, get_settings
 
 
 def create_app() -> FastAPI:
+    """Establishes the S-Gen Gateway behind Cloudfare Tunnel
+
+    Args:
+        None
+
+    Returns:
+        FastAPI: App with title, version, and description
+    """
+
     configure_logging()
     settings = get_settings()
 
