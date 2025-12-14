@@ -2,7 +2,7 @@ import logging
 
 from fastapi import FastAPI
 
-from app.api import health, jobs, sgen_submit
+from app.api.v1 import health, jobs, sgen_submit
 from app.core import configure_logging, get_settings
 
 
