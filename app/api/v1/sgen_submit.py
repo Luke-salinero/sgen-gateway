@@ -2,8 +2,8 @@ import uuid
 
 from fastapi import APIRouter, HTTPException
 
-from app.core.config import get_settings
-from app.models.sgen import (
+from app.core import get_settings
+from app.models import (
     SGenErrorResponse,
     SGenSubmitRequest,
     SGenSubmitResponse,
@@ -17,6 +17,13 @@ def mock_sgen_engine(req: SGenSubmitRequest) -> list[str]:
     A deterministic but synthetic S-Gen mock engine.
 
     Generates valid bitstrings of length n, exactly k active bits.
+
+    Args:
+        req (SGenSubmitRequest): Contains the information needed for an SGen request,
+                                 such as bitwidth.
+
+    Returns:
+        Bitstring in a list with first K bits active. (list)
     """
     n, k = req.n, req.k
 
@@ -31,12 +38,15 @@ def mock_sgen_engine(req: SGenSubmitRequest) -> list[str]:
 
 @router.get("/mode")
 async def get_mode():
+    """Gets the mode of SGen from the settings"""
+
     settings = get_settings()
     return {"mode": settings.sgen_mode}
 
 
 @router.post("/debug/echo")
 async def debug_echo(payload: dict):
+    """Returns the payload received"""
     return {"received": payload}
 
 
@@ -46,6 +56,17 @@ async def debug_echo(payload: dict):
     responses={400: {"model": SGenErrorResponse}},
 )
 async def submit_job(req: SGenSubmitRequest):
+    """Submits an SGen job to the compute node and returns an SGen response
+
+    Args:
+        req (SGenSubmitRequest): Contains the information needed for an SGen request,
+                                 such as bitwidth.
+
+    Returns:
+        SGenSubmitResponse - A response containing all information pertaining to
+                             the output (status,results... etc)
+    """
+
     settings = get_settings()
     mode = settings.sgen_mode.lower()
 

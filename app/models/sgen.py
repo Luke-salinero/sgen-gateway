@@ -4,6 +4,16 @@ from pydantic import BaseModel, Field, validator
 
 
 def validate_bitstring(value: str, n: int) -> str:
+    """Validates the input bitstring and raises an error if its not allowed
+
+    Args:
+        value (str): Initial bitstring
+        n (int): Bitwidth of the bitstring
+
+    Returns:
+        value (str): Initial bitstring
+    """
+
     if not value.startswith("0b"):
         raise ValueError("Bitmask must start with '0b'")
     bits = value[2:]
@@ -15,6 +25,19 @@ def validate_bitstring(value: str, n: int) -> str:
 
 
 class SGenSubmitRequest(BaseModel):
+    """Runs the submitted Basemodel through validation checks
+
+    Attributes:
+        n (int): Bit width of the binary strings to process
+        k (int): Number of active bits in each binary pattern
+        existential (boolean): Mode flag to toggle existential processing
+        prune_masks (array): List of binary strings representing masks
+                             to prune certain data
+        find_masks (array): List of binary strings representing masks
+                            to find specific data
+        ranges (array): List of [start,end] pairs defining processing ranges
+    """
+
     n: int = Field(..., ge=1, le=2048)
     k: int = Field(..., ge=1)
     existential: bool = True
@@ -24,6 +47,16 @@ class SGenSubmitRequest(BaseModel):
 
     @validator("k")
     def validate_k(cls, v, values):
+        """Validates the number of active bits (must be LEQ than bitwidth)
+
+        Args:
+            v (int): Number of active bits in each binary pattern
+            values (Dict): Dictionary of important values relating to the bitstring.
+
+        Returns:
+            v (int): Number of active bits in each binary pattern
+        """
+
         n = values.get("n")
         if n is not None and v > n:
             raise ValueError("k must be ≤ n")
@@ -31,6 +64,15 @@ class SGenSubmitRequest(BaseModel):
 
     @validator("prune_masks", "find_masks", each_item=True)
     def validate_masks(cls, mask, values):
+        """Validates the mask and returns whether it is a valid bitstring.
+
+        Args:
+            mask (str): A bitstring representing the mask
+            values (Dict): Dictionary of important values relating to the bitstring.
+
+        Returns:
+            mask (str): Validated bitstring representing the mask
+        """
         n = values.get("n")
         if n is None:
             return mask
@@ -38,6 +80,17 @@ class SGenSubmitRequest(BaseModel):
 
     @validator("ranges", each_item=True)
     def validate_ranges(cls, pair, values):
+        """Validates the ranges and returns whether the min/max
+           of the range is a valid bitstring
+
+        Args:
+            pair (array): A bitstring pair representing the start and end of the range.
+            values (Dict): Dictionary of important values relating to the bitstring.
+
+        Returns:
+            mask (str): Validated bitstring pair representing
+                        the start and end of the range.
+        """
         n = values.get("n")
         if n is None:
             return pair
@@ -48,6 +101,12 @@ class SGenSubmitRequest(BaseModel):
 
 
 class SGenSubmitResponse(BaseModel):
+    """Information pertaining to the SGen product
+
+    Args:
+        BaseModel
+    """
+
     status: str = "ok"
     mode: str
     job_id: str
@@ -57,6 +116,12 @@ class SGenSubmitResponse(BaseModel):
 
 
 class SGenErrorResponse(BaseModel):
+    """Information pertaining to any SGen error encountered
+
+    Args:
+        BaseModel
+    """
+
     status: str = "error"
     message: str
     mask: Optional[str] = None
