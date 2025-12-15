@@ -11,20 +11,16 @@ logger = logging.getLogger(__name__)
 
 
 class ComputeAdapter:
-    """Mananges the real and mock communication between the compute node and the user
+    """Operates the real and mock communication between
+       the API layer and the compute node
 
     Attributes:
-        Settings (Class): SGen Settings
         url (str): Base URL or default URL
         timeout (int): Connection of timeout in seconds; default 120s.
     """
 
     def __init__(self, base_url: Optional[str] = None) -> None:
-        """Initializes base settings and configurations
-
-        Args:
-            base_url (str): Base URL or Default URL for SGEN
-        """
+        """Initializes base settings and configurations"""
 
         settings = get_settings()
         self.base_url = base_url or settings.compute_base_url
@@ -36,13 +32,11 @@ class ComputeAdapter:
         without touching any real compute.
 
         Args:
-            job (Class): Internal Job Request - Information regarding
+            Internal Job Request : Information regarding
                                                 contraints, user ID, and payload.
-
         Returns:
-            job (Class): Internal Job Result - Information regarding
+            Internal Job Result : Information regarding
                                                job status, result, and errors.
-
         """
         logger.info("Running job in MOCK mode", extra={"job_id": job.job_id})
 
@@ -73,13 +67,11 @@ class ComputeAdapter:
         This is where you’ll integrate with your S-Gen node via Tailscale.
 
         Args:
-            job (Class): Internal Job Request - Information regarding
+            Internal Job Request : Information regarding
                                                 contraints, user ID, and payload.
-
         Returns:
-            job (Class): Internal Job Result - Information regarding
+            Internal Job Result : Information regarding
                                                job status, result, and errors.
-
         """
         url = f"{self.base_url}/internal/v1/jobs"
         logger.info(
@@ -117,10 +109,7 @@ def generate_job_id() -> str:
     """Generates a UUID for unique job requests
 
     Args:
-        None
-
-    Returns:
-        uuid (str): Unique signature for each job request
+            base_url (str): Base URL or Default URL for SGEN
     """
 
     return str(uuid.uuid4())

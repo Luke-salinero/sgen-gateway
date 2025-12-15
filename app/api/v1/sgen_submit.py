@@ -17,13 +17,6 @@ def mock_sgen_engine(req: SGenSubmitRequest) -> list[str]:
     A deterministic but synthetic S-Gen mock engine.
 
     Generates valid bitstrings of length n, exactly k active bits.
-
-    Args:
-        req (SGenSubmitRequest): Contains the information needed for an SGen request,
-                                 such as bitwidth.
-
-    Returns:
-        Bitstring in a list with first K bits active. (list)
     """
     n, k = req.n, req.k
 
@@ -56,16 +49,7 @@ async def debug_echo(payload: dict):
     responses={400: {"model": SGenErrorResponse}},
 )
 async def submit_job(req: SGenSubmitRequest):
-    """Submits an SGen job to the compute node and returns an SGen response
-
-    Args:
-        req (SGenSubmitRequest): Contains the information needed for an SGen request,
-                                 such as bitwidth.
-
-    Returns:
-        SGenSubmitResponse - A response containing all information pertaining to
-                             the output (status,results... etc)
-    """
+    """Submits an SGen job to the compute node and returns an SGen response"""
 
     settings = get_settings()
     mode = settings.sgen_mode.lower()

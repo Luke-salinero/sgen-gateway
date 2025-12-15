@@ -12,8 +12,8 @@ router = APIRouter(prefix="/v1/sgen", tags=["jobs"])
 
 
 def get_compute_adapter() -> ComputeAdapter:
-    """Returns the Computer Adapter class, which mananges the real and mock
-    communication between the compute node and the user
+    """Returns the Computer Adapter class, which operates between
+    the API layer and the compute backend
     """
 
     return ComputeAdapter()
@@ -29,14 +29,6 @@ async def create_job(
 
     In mock mode: returns a synthetic result immediately.
     In live mode: dispatches to the compute node and returns its response.
-
-    Args:
-        request (JobCreateRequest): Initial create request for SGen jobs
-        adapter (ComputeAdapter): Mananges the real and mock communication between
-                                  the compute node and the user
-
-    Returns:
-        JobResultResponse - Information pertaining to the result of an SGen job
     """
     settings = get_settings()
     mode = settings.sgen_mode.lower()

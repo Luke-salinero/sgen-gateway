@@ -3,11 +3,7 @@ import sys
 
 
 def configure_logging() -> None:
-    """Initializes and manages the logging settings
-
-    Args:
-        None
-    """
+    """Configures the logging"""
 
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
