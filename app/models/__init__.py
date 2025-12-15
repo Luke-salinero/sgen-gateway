@@ -1,6 +1,4 @@
 """
-models
-
 Backend Classes and SGen Models. 
 Used for the API calls/requests and validation of configs.
 """

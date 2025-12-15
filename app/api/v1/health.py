@@ -7,17 +7,7 @@ router = APIRouter(tags=["health"])
 
 @router.get("/health", summary="Health check")
 async def health_check():
-    """Allows users to check out the server/router health.
-
-    Args:
-        None
-
-    Returns:
-        Service Name (str): "sgen-gateway"
-        Service Version (str): "0.1.0"
-        Status (str): "ok"
-        Mode  (str): "Live or Mock"
-    """
+    """Allows users to check out the server/router health."""
 
     settings = get_settings()
     return {

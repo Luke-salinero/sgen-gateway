@@ -1,6 +1,4 @@
 """
-core
-
 Contains the SGen settings and logging capabilities
 """
 

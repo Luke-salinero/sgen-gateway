@@ -1,6 +1,4 @@
 """
-v1
-
 User API Functions and Requests
 """
 

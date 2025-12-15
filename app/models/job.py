@@ -4,11 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class JobRequestPayload(BaseModel):
-    """Information pertaining to the initial prompt and request for SGen
-
-    Args:
-        BaseModel
-    """
+    """Information pertaining to the initial prompt and request for SGen"""
 
     prompt: str = Field(..., min_length=1, max_length=4000)
     resolution: str = Field("1024x1024", pattern=r"^\d+x\d+$")
@@ -17,22 +13,14 @@ class JobRequestPayload(BaseModel):
 
 
 class JobCreateRequest(BaseModel):
-    """Public API envelope for creating a job
-
-    Args:
-        BaseModel
-    """
+    """Public API envelope for creating a job"""
 
     # Public API envelope for creating a job
     payload: JobRequestPayload
 
 
 class JobStatus(str):
-    """Information pertaining to the current status of an SGen Job
-
-    Args:
-        String
-    """
+    """Information pertaining to the current status of an SGen Job"""
 
     QUEUED = "queued"
     RUNNING = "running"
@@ -42,11 +30,7 @@ class JobStatus(str):
 
 
 class InternalJobRequest(BaseModel):
-    """Information that SGen sends the compute node
-
-    Args:
-        BaseModel
-    """
+    """Information that SGen sends the compute node"""
 
     # What we send to the compute node
     job_id: str
@@ -56,11 +40,7 @@ class InternalJobRequest(BaseModel):
 
 
 class InternalJobResult(BaseModel):
-    """Information that we receive from the compute node
-
-    Args:
-        BaseModel
-    """
+    """Information that we receive from the compute node"""
 
     job_id: str
     status: str

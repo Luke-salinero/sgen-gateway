@@ -7,11 +7,11 @@ def validate_bitstring(value: str, n: int) -> str:
     """Validates the input bitstring and raises an error if its not allowed
 
     Args:
-        value (str): Initial bitstring
-        n (int): Bitwidth of the bitstring
+        value : Initial bitstring
+        n : Bitwidth of the bitstring
 
     Returns:
-        value (str): Initial bitstring
+        value: Initial bitstring
     """
 
     if not value.startswith("0b"):
@@ -50,11 +50,11 @@ class SGenSubmitRequest(BaseModel):
         """Validates the number of active bits (must be LEQ than bitwidth)
 
         Args:
-            v (int): Number of active bits in each binary pattern
-            values (Dict): Dictionary of important values relating to the bitstring.
+            v: Number of active bits in each binary pattern
+            values: Dictionary of important values relating to the bitstring.
 
         Returns:
-            v (int): Number of active bits in each binary pattern
+            v: Number of active bits in each binary pattern
         """
 
         n = values.get("n")
@@ -67,11 +67,11 @@ class SGenSubmitRequest(BaseModel):
         """Validates the mask and returns whether it is a valid bitstring.
 
         Args:
-            mask (str): A bitstring representing the mask
-            values (Dict): Dictionary of important values relating to the bitstring.
+            mask: A bitstring representing the mask
+            values: Dictionary of important values relating to the bitstring.
 
         Returns:
-            mask (str): Validated bitstring representing the mask
+            mask: Validated bitstring representing the mask
         """
         n = values.get("n")
         if n is None:
@@ -84,11 +84,11 @@ class SGenSubmitRequest(BaseModel):
            of the range is a valid bitstring
 
         Args:
-            pair (array): A bitstring pair representing the start and end of the range.
-            values (Dict): Dictionary of important values relating to the bitstring.
+            pair: A bitstring pair representing the start and end of the range.
+            values: Dictionary of important values relating to the bitstring.
 
         Returns:
-            mask (str): Validated bitstring pair representing
+            mask: Validated bitstring pair representing
                         the start and end of the range.
         """
         n = values.get("n")
@@ -101,11 +101,7 @@ class SGenSubmitRequest(BaseModel):
 
 
 class SGenSubmitResponse(BaseModel):
-    """Information pertaining to the SGen product
-
-    Args:
-        BaseModel
-    """
+    """Information pertaining to the SGen product"""
 
     status: str = "ok"
     mode: str
@@ -116,11 +112,7 @@ class SGenSubmitResponse(BaseModel):
 
 
 class SGenErrorResponse(BaseModel):
-    """Information pertaining to any SGen error encountered
-
-    Args:
-        BaseModel
-    """
+    """Information pertaining to any SGen error encountered"""
 
     status: str = "error"
     message: str

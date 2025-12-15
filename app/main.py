@@ -7,13 +7,9 @@ from app.core import configure_logging, get_settings
 
 
 def create_app() -> FastAPI:
-    """Establishes the S-Gen Gateway behind Cloudfare Tunnel
+    """Application factory for the S-Gen gateway.
 
-    Args:
-        None
-
-    Returns:
-        FastAPI: App with title, version, and description
+    Exposes the function used to construct and configure the FastAPI app
     """
 
     configure_logging()

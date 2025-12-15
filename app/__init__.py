@@ -1,7 +1,7 @@
 """
-main
+Application factory for the S-Gen gateway.
 
-Contains the function to create the app and start S-Gen gateway
+Exposes the function used to construct and configure the FastAPI app.
 """
 
 from .main import create_app
