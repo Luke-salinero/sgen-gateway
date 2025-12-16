@@ -1,6 +1,6 @@
 from typing import List, Optional, Tuple
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 def validate_bitstring(value: str, n: int) -> str:
@@ -38,6 +38,8 @@ class SGenSubmitRequest(BaseModel):
         ranges (array): List of [start,end] pairs defining processing ranges
     """
 
+    model_config = {"strict": True}
+
     n: int = Field(..., ge=1, le=2048)
     k: int = Field(..., ge=1)
     existential: bool = True
@@ -45,200 +47,150 @@ class SGenSubmitRequest(BaseModel):
     find_masks: List[str] = []
     ranges: List[Tuple[str, str]] = []
 
-    @validator("k")
-    def validate_k(cls, v, values):
-        """Validates the number of active bits (must be LEQ than bitwidth)
+    @field_validator("k", mode="after")
+    @classmethod
+    def validate_k(cls, v, info):
+        """
+        Validate `k`, the number of active bits in a pattern, against `n`,
+        the total bit-width of the binary representation.
 
         Args:
-            v (int): Number of active bits in each binary pattern
-            values (Dict): Dictionary of important values relating to the bitstring.
+            v (int): Number of active bits required.
+            info (ValidationInfo): Access to other validated fields, including `n`.
 
         Returns:
-            v (int): Number of active bits in each binary pattern
+            int: Validated value of `k`.
         """
-
-        n = values.get("n")
+        n = info.data.get("n")
         if n is not None and v > n:
             raise ValueError("k must be ≤ n")
-        if not (v > 0):
-            # If k == 0, then our search space is [0].
+        if v <= 0:
             raise ValueError("k must be a positive integer")
         return v
 
-    @validator("prune_masks", "find_masks", each_item=True)
-    def validate_masks(cls, mask, values):
-        """Validates the mask and returns whether it is a valid bitstring.
+    @field_validator("prune_masks", "find_masks", mode="after")
+    @classmethod
+    def validate_masks(cls, masks, info):
+        """
+        Validate that each prune/find mask is a binary string of length `n`,
+        representing a fixed-width bitmask.
 
         Args:
-            mask (str): A bitstring representing the mask
-            values (Dict): Dictionary of important values relating to the bitstring.
+            masks (List[str]): List of binary mask strings.
+            info (ValidationInfo): Access to `n` (bit-width).
 
         Returns:
-            mask (str): Validated bitstring representing the mask
+            List[str]: Validated mask list.
         """
-        n = values.get("n")
+        n = info.data.get("n")
         if n is None:
-            return mask
-        return validate_bitstring(mask, n)
+            return masks
+        return [validate_bitstring(mask, n) for mask in masks]
 
-    @validator("k", "prune_masks", "find_masks", each_item=True)
-    def validate_maskActiveBits(cls, mask, v, values):
-        """Validates the number of active bits in a mask
+    @field_validator("ranges", mode="after")
+    @classmethod
+    def validate_ranges(cls, ranges, info):
+        """
+        Validate each range defines a valid inclusive interval between two
+        `n`-bit binary values, with start less than or equal to end.
 
         Args:
-            mask (str): A bitstring representing the mask
-            v (int): Number of active bits in each binary pattern
-            values (Dict): Dictionary of important values relating to the bitstring.
-
+            ranges (List[Tuple[str, str]]): Bitstring range bounds.
+            info (ValidationInfo): Access to `n` (bit-width).
 
         Returns:
-            mask (str): Validated bitstring representing the mask
+            List[Tuple[str, str]]: Validated ranges.
         """
-
-        n = values.get("n")
-        if n is None:
-            return mask
-
-        maskActiveBits = mask.count("1")
-        if maskActiveBits != v:
-            raise ValueError("Bitmask active bits does not equal k!")
-
-        return mask
-
-    @validator("ranges", each_item=True)
-    def validate_ranges(cls, pair, values):
-        """Validates the ranges and returns whether the min/max
-           of the range is a valid bitstring
-
-        Args:
-            pair (array): A bitstring pair representing the start and end of the range.
-            values (Dict): Dictionary of important values relating to the bitstring.
-
-        Returns:
-            pair (array): Validated bitstring pair representing
-                        the start and end of the range.
-        """
-        n = values.get("n")
-        if n is None:
-            return pair
-        start, end = pair
-
-        validate_bitstring(start, n)
-        validate_bitstring(end, n)
-
-        # Convert to bits
-        startBit = int(start, 0)
-        endBit = int(end, 0)
-
-        if not (startBit <= endBit):
-            raise ValueError("Start of range is > end of range!")
-
-        return pair
-
-    @validator("ranges", "k", each_item=True)
-    def validate_rangeActiveBits(cls, pair, v, values):
-        """Validates the ranges and whether they meet boundary min/maxs.
-
-        Args:
-            pair (array): A bitstring pair representing the start and end of the range.
-            values (Dict): Dictionary of important values relating to the bitstring.
-
-        Returns:
-            pair (array): Validated bitstring pair representing
-                        the start and end of the range.
-        """
-        n = values.get("n")
-        if n is None:
-            return pair
-        start, end = pair
-
-        # Convert to bits
-        startBit = int(start, 0)
-        endBit = int(end, 0)
-
-        maxBit = "0b" + "1" * v + "0" * (n - v)
-        minBit = "0b" + "0" * (n - v) + "1" * v
-
-        intMinBit = int(minBit, 0)
-        intMaxBit = int(maxBit, 0)
-
-        if startBit < intMinBit:
-            raise ValueError(f"Start of range should be atleast {minBit}")
-        if endBit > intMaxBit:
-            raise ValueError(f"End of range should be atleast {maxBit}")
-
-        return pair
-
-    @validator("ranges")
-    def validate_rangeOverlap(cls, ranges, values):
-        """Validates the ranges and returns whether the ranges overlap
-
-        Args:
-            ranges (array): Array of bitstring pairs representing
-                           the start and end of the range.
-            values (Dict): Dictionary of important values relating to the bitstring.
-
-        Returns:
-            ranges (array): Array of Validated bitstring pairs representing
-                        the start and end of the range.
-        """
-        n = values.get("n")
+        n = info.data.get("n")
         if n is None:
             return ranges
 
-        if len(ranges) <= 1:
-            return ranges
-        sortedArray = []
-        # Sort by lower boundary
-        sortedArray.sort(key=lambda x: int(x[0], 0))
-        overlaps = []
-        previousRange = sortedArray[0]
+        for start, end in ranges:
+            validate_bitstring(start, n)
+            validate_bitstring(end, n)
 
-        # Loop over ranges and see whether next lower boundary
-        # falls in the range of the previous lower boundar
-        # to the largest upper boundary we've seen
-        for currentRange in sortedArray[1:]:
-            previousStart, previousEnd = previousRange
-            currentStart, currentEnd = currentRange
+            if int(start, 0) >= int(end, 0):
+                raise ValueError("Start of range is >= end of range!")
 
-            if currentStart <= previousEnd:
-                overlaps.append((previousRange, currentRange))
-                previousRange = (previousStart, max(previousEnd, currentEnd))
-            else:
-                previousRange = currentRange
-        if len(overlaps) != 0:
-            # Instead of raising a value error, we could collapse the
-            # overlapping ranges into one range.
-            raise ValueError(f"There are overlapping ranges!\n{overlaps}")
         return ranges
 
-    @validator("ranges", "prune_masks", "find_masks", each_item=True)
-    def validate_masksInRanges(cls, pair, mask, values):
-        """Validates the mask and returns whether
-           they are within the range boundaries
+    @field_validator("ranges", mode="after")
+    @classmethod
+    def validate_rangeOverlap(cls, ranges, info):
+        """
+        Ensure that defined binary ranges do not overlap,
+        preventing ambiguous or duplicated coverage.
 
         Args:
-            mask (str): A bitstring representing the mask
-            values (Dict): Dictionary of important values relating to the bitstring.
+            ranges (List[Tuple[str, str]]): Bitstring range bounds.
+            info (ValidationInfo): Validation context.
 
         Returns:
-            mask (str): Validated bitstring pair representing
-                        the start and end of the range.
+            List[Tuple[str, str]]: Non-overlapping ranges.
         """
-        n = values.get("n")
-        if n is None:
-            return mask
-        start, end = pair
+        if len(ranges) <= 1:
+            return ranges
 
-        # Convert to integers, see if mask is in range
-        startBit = int(start, 0)
-        endBit = int(end, 0)
-        maskBit = int(mask, 0)
+        sorted_ranges = sorted(ranges, key=lambda r: int(r[0], 0))
+        _, prev_end = sorted_ranges[0]
 
-        if not (startBit <= maskBit and maskBit <= endBit):
-            raise ValueError("Bitmask is not in the range!")
+        for start, end in sorted_ranges[1:]:
+            if int(start, 0) <= int(prev_end, 0):
+                raise ValueError("There are overlapping ranges!")
+            _, prev_end = start, end
 
-        return mask
+        return ranges
+
+    @model_validator(mode="after")
+    def validate_maskActiveBits(self):
+        """
+        Ensure all prune and find masks contain exactly `k` active (set) bits,
+        where `k` defines the required sparsity of each pattern.
+
+        Returns:
+            SGenSubmitRequest: Validated model instance.
+        """
+        for mask in self.prune_masks + self.find_masks:
+            if mask.count("1") != self.k:
+                raise ValueError("Bitmask active bits does not equal k!")
+        return self
+
+    @model_validator(mode="after")
+    def validate_rangeActiveBits(self):
+        """
+        Ensure all ranges lie within the minimum and maximum values
+        allowed by `n` (bit-width) and `k` (active bit count).
+        """
+        max_bit = int("0b" + "1" * self.k + "0" * (self.n - self.k), 0)
+        min_bit = int("0b" + "0" * (self.n - self.k) + "1" * self.k, 0)
+
+        for start, end in self.ranges:
+            if int(start, 0) < min_bit:
+                raise ValueError(f"Start of range should be atleast {bin(min_bit)}")
+            if int(end, 0) > max_bit:
+                raise ValueError(f"End of range should be atleast {bin(max_bit)}")
+
+        return self
+
+    @model_validator(mode="after")
+    def validate_masksInRanges(self):
+        """
+        Ensure each prune and find mask falls within at least one
+        of the defined binary ranges.
+        """
+        if not self.ranges:
+            return self
+
+        range_bounds = [(int(s, 0), int(e, 0)) for s, e in self.ranges]
+
+        def in_any_range(value: int) -> bool:
+            return any(start <= value <= end for start, end in range_bounds)
+
+        for mask in self.prune_masks + self.find_masks:
+            if not in_any_range(int(mask, 0)):
+                raise ValueError("Bitmask is not in the range!")
+
+        return self
 
 
 class SGenSubmitResponse(BaseModel):
