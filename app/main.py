@@ -2,12 +2,16 @@ import logging
 
 from fastapi import FastAPI
 
-from app.api.v1 import health, jobs, sgen_submit
-from app.core.config import get_settings
-from app.core.logging import configure_logging
+from app.api import health, jobs, sgen_submit
+from app.core import configure_logging, get_settings
 
 
 def create_app() -> FastAPI:
+    """Application factory for the S-Gen gateway.
+
+    Exposes the function used to construct and configure the FastAPI app
+    """
+
     configure_logging()
     settings = get_settings()
 

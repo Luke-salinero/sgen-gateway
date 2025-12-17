@@ -2,8 +2,8 @@ import uuid
 
 from fastapi import APIRouter, HTTPException
 
-from app.core.config import get_settings
-from app.models.sgen import (
+from app.core import get_settings
+from app.models import (
     SGenErrorResponse,
     SGenSubmitRequest,
     SGenSubmitResponse,
@@ -31,12 +31,15 @@ def mock_sgen_engine(req: SGenSubmitRequest) -> list[str]:
 
 @router.get("/mode")
 async def get_mode():
+    """Gets the mode of SGen from the settings"""
+
     settings = get_settings()
     return {"mode": settings.sgen_mode}
 
 
 @router.post("/debug/echo")
 async def debug_echo(payload: dict):
+    """Returns the payload received"""
     return {"received": payload}
 
 
@@ -46,6 +49,8 @@ async def debug_echo(payload: dict):
     responses={400: {"model": SGenErrorResponse}},
 )
 async def submit_job(req: SGenSubmitRequest):
+    """Submits an SGen job to the compute node and returns an SGen response"""
+
     settings = get_settings()
     mode = settings.sgen_mode.lower()
 

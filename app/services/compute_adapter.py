@@ -4,14 +4,24 @@ from typing import Optional
 
 import httpx
 
-from app.core.config import get_settings
-from app.models.job import InternalJobRequest, InternalJobResult, JobStatus
+from app.core import get_settings
+from app.models import InternalJobRequest, InternalJobResult, JobStatus
 
 logger = logging.getLogger(__name__)
 
 
 class ComputeAdapter:
+    """Operates the real and mock communication between
+       the API layer and the compute node
+
+    Attributes:
+        url (str): Base URL or default URL
+        timeout (int): Connection of timeout in seconds; default 120s.
+    """
+
     def __init__(self, base_url: Optional[str] = None) -> None:
+        """Initializes base settings and configurations"""
+
         settings = get_settings()
         self.base_url = base_url or settings.compute_base_url
         self.timeout = settings.request_timeout_seconds
@@ -20,6 +30,13 @@ class ComputeAdapter:
         """
         Mock implementation: returns a fake image URL / payload
         without touching any real compute.
+
+        Args:
+            Internal Job Request : Information regarding
+                                                contraints, user ID, and payload.
+        Returns:
+            Internal Job Result : Information regarding
+                                               job status, result, and errors.
         """
         logger.info("Running job in MOCK mode", extra={"job_id": job.job_id})
 
@@ -48,6 +65,13 @@ class ComputeAdapter:
         """
         Live implementation: talks to the real compute node over HTTP.
         This is where you’ll integrate with your S-Gen node via Tailscale.
+
+        Args:
+            Internal Job Request : Information regarding
+                                                contraints, user ID, and payload.
+        Returns:
+            Internal Job Result : Information regarding
+                                               job status, result, and errors.
         """
         url = f"{self.base_url}/internal/v1/jobs"
         logger.info(
@@ -82,4 +106,10 @@ class ComputeAdapter:
 
 
 def generate_job_id() -> str:
+    """Generates a UUID for unique job requests
+
+    Args:
+            base_url (str): Base URL or Default URL for SGEN
+    """
+
     return str(uuid.uuid4())

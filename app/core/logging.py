@@ -3,6 +3,8 @@ import sys
 
 
 def configure_logging() -> None:
+    """Configures the logging"""
+
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
 

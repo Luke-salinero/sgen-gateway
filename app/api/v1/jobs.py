@@ -2,10 +2,9 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.core.config import get_settings
-from app.models.job import InternalJobRequest, JobCreateRequest
-from app.models.responses import JobResultResponse
-from app.services.compute_adapter import ComputeAdapter, generate_job_id
+from app.core import get_settings
+from app.models import InternalJobRequest, JobCreateRequest, JobResultResponse
+from app.services import ComputeAdapter, generate_job_id
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +12,10 @@ router = APIRouter(prefix="/v1/sgen", tags=["jobs"])
 
 
 def get_compute_adapter() -> ComputeAdapter:
+    """Returns the Computer Adapter class, which operates between
+    the API layer and the compute backend
+    """
+
     return ComputeAdapter()
 
 
