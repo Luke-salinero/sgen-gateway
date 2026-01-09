@@ -1,3 +1,5 @@
+# app/api/v1/sgen_submit.py
+
 import uuid
 
 from fastapi import APIRouter, HTTPException
@@ -27,20 +29,6 @@ def mock_sgen_engine(req: SGenSubmitRequest) -> list[str]:
         bits[i] = "1"
 
     return [f"0b{''.join(bits)}"]
-
-
-@router.get("/mode")
-async def get_mode():
-    """Gets the mode of SGen from the settings"""
-
-    settings = get_settings()
-    return {"mode": settings.sgen_mode}
-
-
-@router.post("/debug/echo")
-async def debug_echo(payload: dict):
-    """Returns the payload received"""
-    return {"received": payload}
 
 
 @router.post(
