@@ -1,4 +1,6 @@
-from typing import List, Optional, Tuple
+# app/models/sgen.py
+
+from typing import List, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -35,7 +37,32 @@ class SGenSubmitRequest(BaseModel):
     existential: bool = True
     prune_masks: List[str] = []
     find_masks: List[str] = []
-    ranges: List[Tuple[str, str]] = []
+    ranges: List[List[str]] = []
+
+    @field_validator("ranges", mode="before")
+    @classmethod
+    def normalize_ranges(cls, v):
+        if v is None:
+            return v
+
+        if not isinstance(v, list):
+            raise ValueError("ranges must be a list")
+
+        normalized = []
+        for item in v:
+            if isinstance(item, (tuple, list)):
+                if len(item) != 2:
+                    raise ValueError("Each range must contain exactly two elements")
+
+                start, end = item
+                if not isinstance(start, str) or not isinstance(end, str):
+                    raise ValueError("Range endpoints must be strings")
+
+                normalized.append([start, end])
+            else:
+                raise ValueError("Each range must be a list or tuple of two strings")
+
+        return normalized
 
     @field_validator("k", mode="after")
     @classmethod
@@ -95,7 +122,12 @@ class SGenSubmitRequest(BaseModel):
         if n is None:
             return ranges
 
-        for start, end in ranges:
+        for pair in ranges:
+            if len(pair) != 2:
+                raise ValueError("Each range must contain exactly two values")
+
+            start, end = pair
+
             validate_bitstring(start, n)
             validate_bitstring(end, n)
 
@@ -121,7 +153,11 @@ class SGenSubmitRequest(BaseModel):
         if len(ranges) <= 1:
             return ranges
 
-        sorted_ranges = sorted(ranges, key=lambda r: int(r[0], 0))
+        sorted_ranges = sorted(
+            ranges,
+            key=lambda r: int(r[0], 0),
+        )
+
         _, prev_end = sorted_ranges[0]
 
         for start, end in sorted_ranges[1:]:
@@ -154,7 +190,8 @@ class SGenSubmitRequest(BaseModel):
         max_bit = int("0b" + "1" * self.k + "0" * (self.n - self.k), 0)
         min_bit = int("0b" + "0" * (self.n - self.k) + "1" * self.k, 0)
 
-        for start, end in self.ranges:
+        for pair in self.ranges:
+            start, end = pair
             if int(start, 0) < min_bit:
                 raise ValueError(f"Start of range should be atleast {bin(min_bit)}")
             if int(end, 0) > max_bit:
@@ -171,7 +208,7 @@ class SGenSubmitRequest(BaseModel):
         if not self.ranges:
             return self
 
-        range_bounds = [(int(s, 0), int(e, 0)) for s, e in self.ranges]
+        range_bounds = [(int(pair[0], 0), int(pair[1], 0)) for pair in self.ranges]
 
         def in_any_range(value: int) -> bool:
             return any(start <= value <= end for start, end in range_bounds)

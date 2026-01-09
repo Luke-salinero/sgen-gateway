@@ -1,3 +1,5 @@
+# app/services/compute_adapter.py
+
 import logging
 import uuid
 from typing import Optional
