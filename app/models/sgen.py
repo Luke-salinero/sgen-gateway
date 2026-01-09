@@ -221,12 +221,11 @@ class SGenSubmitRequest(BaseModel):
 
 
 class SGenSubmitResponse(BaseModel):
-    status: str = "ok"
-    mode: str
     job_id: str
-    results: List[str]
-    n: int
-    k: int
+    status: str
+    mode: str
+    result: dict | None = None
+    error: dict | None = None
 
 
 class SGenErrorResponse(BaseModel):

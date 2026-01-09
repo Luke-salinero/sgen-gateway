@@ -13,6 +13,9 @@ from app.models import (
 
 router = APIRouter(prefix="", tags=["sgen"])
 
+# simple in-memory job store (mock-only)
+JOB_STORE: dict[str, dict] = {}
+
 
 def mock_sgen_engine(req: SGenSubmitRequest) -> list[str]:
     """
@@ -37,8 +40,6 @@ def mock_sgen_engine(req: SGenSubmitRequest) -> list[str]:
     responses={400: {"model": SGenErrorResponse}},
 )
 async def submit_job(req: SGenSubmitRequest):
-    """Submits an SGen job to the compute node and returns an SGen response"""
-
     settings = get_settings()
     mode = settings.sgen_mode.lower()
 
@@ -46,15 +47,36 @@ async def submit_job(req: SGenSubmitRequest):
 
     if mode == "mock":
         results = mock_sgen_engine(req)
+        status = "mocked"
+        result_payload = {
+            "results": results,
+            "n": req.n,
+            "k": req.k,
+        }
     else:
-        # later: send to compute node
         raise HTTPException(status_code=500, detail="Live mode not implemented yet")
 
-    return SGenSubmitResponse(
-        status="ok",
-        mode=mode,
-        job_id=job_id,
-        results=results,
-        n=req.n,
-        k=req.k,
-    )
+    job = {
+        "job_id": job_id,
+        "status": status,
+        "mode": mode,
+        "result": result_payload,
+        "error": None,
+    }
+
+    JOB_STORE[job_id] = job
+    return job
+
+
+@router.get(
+    "/get_job_status/{job_id}",
+    response_model=SGenSubmitResponse,
+)
+async def get_job_status(job_id: str):
+    """Fetch status/result for an existing SGen job."""
+
+    job = JOB_STORE.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    return job
