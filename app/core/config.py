@@ -13,6 +13,13 @@ class Settings(BaseSettings):
     service_name: str = "sgen-gateway"
     service_version: str = "0.1.0"
 
+    # NEW: points to the control-plane service
+    sgen_controller_base_url: str = Field(
+        default="http://127.0.0.1:8001",
+        alias="SGEN_CONTROLLER_BASE_URL",
+    )
+
+    # OLD/legacy: keep for now to avoid breaking imports;
     compute_base_url: str = Field(
         default="http://127.0.0.1:9000",
         alias="SGEN_COMPUTE_BASE_URL",
