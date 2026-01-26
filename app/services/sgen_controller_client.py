@@ -21,7 +21,7 @@ class SGenControllerClient:
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             response = await client.post(
                 url,
-                json={"config": req.payload},
+                json={"config": req.model_dump()},
             )
             response.raise_for_status()
             return JobCreatedResponse(**response.json())
