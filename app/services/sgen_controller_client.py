@@ -19,7 +19,10 @@ class SGenControllerClient:
         logger.info("Forwarding job to sgen-controller", extra={"url": url})
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.post(url, json=req.model_dump())
+            response = await client.post(
+                url,
+                json={"config": req.payload},
+            )
             response.raise_for_status()
             return JobCreatedResponse(**response.json())
 
