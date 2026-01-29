@@ -131,7 +131,7 @@ class SGenSubmitRequest(BaseModel):
             validate_bitstring(start, n)
             validate_bitstring(end, n)
 
-            if int(start, 0) >= int(end, 0):
+            if int(start, 0) > int(end, 0):
                 raise ValueError("Start of range is >= end of range!")
 
         return ranges
@@ -161,8 +161,8 @@ class SGenSubmitRequest(BaseModel):
         _, prev_end = sorted_ranges[0]
 
         for start, end in sorted_ranges[1:]:
-            if int(start, 0) <= int(prev_end, 0):
-                raise ValueError("There are overlapping ranges!")
+            if int(start, 0) <= int(prev_end, 0) + 1:
+                raise ValueError("Ranges overlap or are adjacent")
             _, prev_end = start, end
 
         return ranges
@@ -177,26 +177,8 @@ class SGenSubmitRequest(BaseModel):
             SGenSubmitRequest: Validated model instance.
         """
         for mask in self.prune_masks + self.find_masks:
-            if mask.count("1") != self.k:
-                raise ValueError("Bitmask active bits does not equal k!")
-        return self
-
-    @model_validator(mode="after")
-    def validate_rangeActiveBits(self):
-        """
-        Ensure all ranges lie within the minimum and maximum values
-        allowed by `n` (bit-width) and `k` (active bit count).
-        """
-        max_bit = int("0b" + "1" * self.k + "0" * (self.n - self.k), 0)
-        min_bit = int("0b" + "0" * (self.n - self.k) + "1" * self.k, 0)
-
-        for pair in self.ranges:
-            start, end = pair
-            if int(start, 0) < min_bit:
-                raise ValueError(f"Start of range should be atleast {bin(min_bit)}")
-            if int(end, 0) > max_bit:
-                raise ValueError(f"End of range should be atleast {bin(max_bit)}")
-
+            if mask.count("1") > self.k:
+                raise ValueError("Bitmask active bits exceeds k")
         return self
 
     @model_validator(mode="after")
@@ -206,7 +188,7 @@ class SGenSubmitRequest(BaseModel):
         of the defined binary ranges.
         """
         if not self.ranges:
-            return self
+            raise ValueError("At least one range must be specified")
 
         range_bounds = [(int(pair[0], 0), int(pair[1], 0)) for pair in self.ranges]
 
