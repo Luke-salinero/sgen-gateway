@@ -34,6 +34,8 @@ class SGenSubmitRequest(BaseModel):
 
     n: int = Field(..., ge=1, le=2048)
     k: int = Field(..., ge=1)
+    block_size: int = Field(..., gt=0)
+
     existential: bool = True
     prune_masks: List[str] = []
     find_masks: List[str] = []
