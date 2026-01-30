@@ -16,6 +16,8 @@ def enforce_entitlements(
 
     max_n = limits.get("max_n")
     max_k = limits.get("max_k")
+
+    # Decide if we want to allow everyone to do existential
     # existential_only = limits.get("existential_only")
 
     if not isinstance(max_n, int) or not isinstance(max_k, int):

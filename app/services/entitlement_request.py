@@ -1,8 +1,9 @@
 from typing import Any, Mapping, Optional
 
-from fastapi import HTTPException, requests
+import requests
+from fastapi import HTTPException
 
-from app.config import get_settings
+from app.core.config import get_settings
 
 
 def call_entitlements(
