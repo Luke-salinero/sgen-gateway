@@ -25,6 +25,11 @@ class Settings(BaseSettings):
         alias="SGEN_COMPUTE_BASE_URL",
     )
 
+    entitlements_base_url: str = Field(
+        default="http://127.0.0.1:8002",
+        alias="SGEN_ENTITLEMENTS_BASE_URL",
+    )
+
     request_timeout_seconds: int = Field(default=120, alias="SGEN_REQUEST_TIMEOUT")
 
     class Config:
