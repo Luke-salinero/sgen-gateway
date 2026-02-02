@@ -157,3 +157,6 @@ cache/
 # Allow pre-commit config
 !.pre-commit-config.yaml
 
+# Scripts
+/scripts
+
