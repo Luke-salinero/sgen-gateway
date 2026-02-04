@@ -7,3 +7,5 @@ pydantic-settings
 black
 pre-commit
 ruff
+requests
+requests
