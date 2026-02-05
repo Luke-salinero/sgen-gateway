@@ -31,7 +31,7 @@ async def submit_job(
 
     try:
         jwt = extract_bearer_token(authorization)
-        entitlement = await call_entitlements(
+        entitlement = call_entitlements(
             jwt_token=jwt,
             request_id=None,
             timeout_s=15,
