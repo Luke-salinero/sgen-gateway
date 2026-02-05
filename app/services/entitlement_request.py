@@ -30,9 +30,30 @@ def call_entitlements(
             status_code=502, detail=f"Entitlements request failed: {exc}"
         ) from exc
 
+    if r.status_code != 200:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Entitlements error {r.status_code}: {r.text}"
+        )
+
+    if "application/json" not in r.headers.get("Content-Type", ""):
+        raise HTTPException(
+            status_code=502,
+            detail="Entitlements returned non-JSON response"
+        )
+
+    data = r.json()
+
     try:
-        return r.json()
+        return data
     # System error
     except Exception as e:
-        print(f"Expected JSON response but got:\n{r.text}")
-        raise SystemExit(2) from e
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "service": "entitlements",
+                "error": "Invalid response",
+                "status": r.status_code if r else None,
+                "body": r.text if r else None,
+            },
+        ) from e
