@@ -31,12 +31,19 @@ async def submit_job(
 
     try:
         jwt = extract_bearer_token(authorization)
-        entitlement = await call_entitlements(
+        entitlement = call_entitlements(
             jwt_token=jwt,
             request_id=None,
             timeout_s=15,
         )
+
         enforce_entitlements(req, entitlement)
+
+        # Add block_size here
+        payload = req.model_dump()
+        payload["config"]["block_size"] = 3
+
+        job = await controller.create_job(payload)
 
         job = await controller.create_job(req)
         return SGenSubmitResponse(
