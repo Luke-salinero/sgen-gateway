@@ -45,7 +45,6 @@ async def submit_job(
 
         job = await controller.create_job(payload)
 
-        job = await controller.create_job(req)
         return SGenSubmitResponse(
             job_id=job.job_id,
             status=job.status,
