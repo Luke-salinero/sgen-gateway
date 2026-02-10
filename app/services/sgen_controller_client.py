@@ -19,7 +19,7 @@ class SGenControllerClient:
         logger.info("Forwarding job to sgen-controller", extra={"url": url})
 
         payload = {
-            "config": req.model_dump(),
+            "config": req,
             "api_key_owner": api_key_owner,
         }
         async with httpx.AsyncClient(timeout=self.timeout) as client:
