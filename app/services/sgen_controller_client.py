@@ -14,14 +14,19 @@ class SGenControllerClient:
         self.base_url = settings.sgen_controller_base_url
         self.timeout = settings.request_timeout_seconds
 
-    async def create_job(self, req: SGenSubmitRequest) -> JobCreatedResponse:
+    async def create_job(self, req: SGenSubmitRequest, api_key_owner: str) \
+            -> JobCreatedResponse:
         url = f"{self.base_url}/api/v1/jobs"
         logger.info("Forwarding job to sgen-controller", extra={"url": url})
 
+        payload = {
+            "config": req.model_dump(),
+            "api_key_owner": api_key_owner,
+        }
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             response = await client.post(
                 url,
-                json={"config": req.model_dump()},
+                json=payload,
             )
             response.raise_for_status()
             return JobCreatedResponse(**response.json())
