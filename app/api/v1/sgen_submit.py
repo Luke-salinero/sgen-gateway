@@ -28,7 +28,6 @@ async def submit_job(
     request: Request,
     authorization: Optional[str] = Header(default=None),
 ):
-    print("here")
     try:
         jwt = extract_bearer_token(authorization)
         entitlement = call_entitlements(

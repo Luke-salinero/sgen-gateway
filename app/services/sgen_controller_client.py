@@ -14,8 +14,7 @@ class SGenControllerClient:
         self.base_url = settings.sgen_controller_base_url
         self.timeout = settings.request_timeout_seconds
 
-    async def create_job(self, req: SGenSubmitRequest, api_key_owner: str) \
-            -> JobCreatedResponse:
+    async def create_job(self, req: SGenSubmitRequest, api_key_owner: str) -> JobCreatedResponse:
         url = f"{self.base_url}/api/v1/jobs"
         logger.info("Forwarding job to sgen-controller", extra={"url": url})
 
@@ -24,12 +23,21 @@ class SGenControllerClient:
             "api_key_owner": api_key_owner,
         }
         async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.post(
-                url,
-                json=payload,
-            )
-            response.raise_for_status()
-            return JobCreatedResponse(**response.json())
+            try:
+                response = await client.post(url, json=payload)
+                response.raise_for_status()
+                return JobCreatedResponse(**response.json())
+
+            except httpx.RequestError as e:
+                logger.error("Controller unreachable", exc_info=e)
+                raise
+
+            except httpx.HTTPStatusError as e:
+                logger.error(
+                    "Controller error",
+                    extra={"status": e.response.status_code, "body": e.response.text},
+                )
+                raise
 
     async def get_job(self, job_id: str) -> JobResultResponse:
         url = f"{self.base_url}/api/v1/jobs/{job_id}"
