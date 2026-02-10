@@ -42,8 +42,9 @@ async def submit_job(
         # Add block_size here
         payload = req.model_dump()
         payload["config"]["block_size"] = 3
+        subject_id = entitlement.get["subject_id"]
 
-        job = await controller.create_job(payload)
+        job = await controller.create_job(payload, subject_id)
 
         return SGenSubmitResponse(
             job_id=job.job_id,
