@@ -4,7 +4,7 @@ import logging
 
 from fastapi import FastAPI
 
-from app.api.v1 import health, sgen_submit
+from app.api.v1 import health, results, sgen_submit, status
 from app.core import configure_logging, get_settings
 
 
@@ -26,6 +26,8 @@ def create_app() -> FastAPI:
     # Routers
     app.include_router(health.router)
     app.include_router(sgen_submit.router)
+    app.include_router(status.router)
+    app.include_router(results.router)
 
     logger = logging.getLogger(__name__)
     logger.info(
