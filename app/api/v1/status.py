@@ -10,7 +10,7 @@ worker = SGenWorkerClient()
 router = APIRouter(prefix="", tags=["sgen"])
 
 
-@router.get("/results/{job_id}", status_code=200)
+@router.get("/staus/{job_id}", status_code=200)
 async def get_results(
     job_id: str,
     authorization: Optional[str] = Header(default=None),
@@ -26,7 +26,7 @@ async def get_results(
                 status_code=403, detail="Missing subject_id in entitlements"
             )
 
-        results = await worker.get_public_results_if_completed(
+        results = await worker.get_public_status_if_completed(
             job_id=job_id, subject_id=subject_id
         )
 
