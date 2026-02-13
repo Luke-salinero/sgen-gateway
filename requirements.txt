@@ -8,3 +8,4 @@ black
 pre-commit
 ruff
 requests
+python-jose[cryptography]
