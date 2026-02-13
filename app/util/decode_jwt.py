@@ -48,7 +48,9 @@ def _fetch_jwks(jwks_url: str) -> dict[str, Any]:
     Fetch Keycloak JWKS and cache it to avoid pulling on every request.
     If you rotate realm keys, restart the service (or remove caching later).
     """
+    print("Starting fetch")
     with urllib.request.urlopen(jwks_url, timeout=10) as resp:
+        print("Fetching JWKS")
         return json.loads(resp.read().decode("utf-8"))
 
 
@@ -95,11 +97,12 @@ def verify_access_token(token: str) -> Mapping[str, object]:
 
 
 def _select_jwk_for_token(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
+    print("Starting select jwk for token")
     header = jwt.get_unverified_header(token)
     kid = header.get("kid")
     if not kid:
-        raise InvalidAuthenticationError("JWT header missing 'kid'")
-
+        raise  InvalidAuthenticationError("JWT header missing 'kid'")
+    print("Half way through jwk for token")
     keys = jwks.get("keys") or []
     for k in keys:
         if k.get("kid") == kid:
@@ -131,8 +134,11 @@ def _authenticate_bearer(auth_header: str) -> Identity:
             options["leeway"] = settings.jwt_leeway_seconds
 
         if jwks_url:
+            print("Before jwks")
             jwks = _fetch_jwks(jwks_url)
+            print("After jwks")
             jwk_key = _select_jwk_for_token(token, jwks)
+            print("After jwks_key")
 
             claims = jwt.decode(
                 token,
