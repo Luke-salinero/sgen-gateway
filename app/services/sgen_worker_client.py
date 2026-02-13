@@ -11,7 +11,7 @@ class SGenWorkerClient:
     async def get_public_results_if_completed(
         self, *, job_id: str, subject_id: str
     ) -> Optional[Dict[str, Any]]:
-        url = f"{self.base_url}/results/{job_id}"
+        url = f"http://{self.base_url}:8002/results/{job_id}"
         headers = {"Api-Key-Owner": subject_id, "Accept": "application/json"}
         async with httpx.AsyncClient(timeout=15.0) as client:
             resp = await client.get(url, headers=headers)
