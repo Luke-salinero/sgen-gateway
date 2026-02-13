@@ -44,14 +44,18 @@ class InvalidAuthenticationError(AuthenticationError):
 
 
 def _fetch_jwks(jwks_url: str) -> dict[str, Any]:
-    """
-    Fetch Keycloak JWKS and cache it to avoid pulling on every request.
-    If you rotate realm keys, restart the service (or remove caching later).
-    """
-    print("Starting fetch")
-    with urllib.request.urlopen(jwks_url, timeout=10) as resp:
-        print("Fetching JWKS")
-        return json.loads(resp.read().decode("utf-8"))
+    print("Starting fetch:", jwks_url)
+
+    try:
+        resp = urllib.request.urlopen(jwks_url, timeout=10)
+        print("Connection opened")
+        data = resp.read()
+        print("Data read")
+        return json.loads(data.decode("utf-8"))
+
+    except Exception as e:
+        print("JWKS fetch error:", repr(e))
+        raise
 
 
 def verify_access_token(token: str) -> Mapping[str, object]:
@@ -135,6 +139,7 @@ def _authenticate_bearer(auth_header: str) -> Identity:
 
         if jwks_url:
             print("Before jwks")
+            print(jwks_url)
             jwks = _fetch_jwks(jwks_url)
             print("After jwks")
             jwk_key = _select_jwk_for_token(token, jwks)
