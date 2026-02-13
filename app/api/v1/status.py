@@ -10,8 +10,8 @@ worker = SGenWorkerClient()
 router = APIRouter(prefix="", tags=["sgen"])
 
 
-@router.get("/staus/{job_id}", status_code=200)
-async def get_results(
+@router.get("/status/{job_id}", status_code=200)
+async def get_status(
     job_id: str,
     authorization: Optional[str] = Header(default=None),
 ):
