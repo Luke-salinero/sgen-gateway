@@ -2,12 +2,13 @@ import os
 from typing import Any, Dict, Optional
 
 import httpx
-
+from dotenv import load_dotenv
+load_dotenv()
 
 class SGenWorkerClient:
     def __init__(self, base_url: Optional[str] = None):
         self.base_url = (
-            base_url or os.getenv("SGEN_WORKER_URL", "http://localhost:8002")
+            base_url or os.getenv("SGEN_WORKER_BASE_URL", "http://0.0.0.0:8002")
         ).rstrip("/")
 
     async def get_public_results_if_completed(
