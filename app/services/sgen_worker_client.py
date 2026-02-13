@@ -2,13 +2,10 @@ import os
 from typing import Any, Dict, Optional
 
 import httpx
-from dotenv import load_dotenv
-load_dotenv()
 
 class SGenWorkerClient:
-    def __init__(self, base_url: Optional[str] = None):
-        self.base_url = (
-            base_url or os.getenv("SGEN_WORKER_BASE_URL", "http://0.0.0.0:8002")
+    def __init__(self):
+        self.base_url = (os.getenv("SGEN_WORKER_BASE_URL", "http://0.0.0.0:8002")
         ).rstrip("/")
 
     async def get_public_results_if_completed(
@@ -16,7 +13,7 @@ class SGenWorkerClient:
     ) -> Optional[Dict[str, Any]]:
         url = f"{self.base_url}/results/{job_id}"
         headers = {"Api-Key-Owner": subject_id, "Accept": "application/json"}
-
+        print(url,headers)
         async with httpx.AsyncClient(timeout=15.0) as client:
             resp = await client.get(url, headers=headers)
 

@@ -32,10 +32,6 @@ class Settings(BaseSettings):
 
     request_timeout_seconds: int = Field(default=120, alias="SGEN_REQUEST_TIMEOUT")
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
 
 
 @lru_cache(maxsize=1)
