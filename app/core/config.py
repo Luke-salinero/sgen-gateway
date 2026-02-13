@@ -45,14 +45,14 @@ class Settings(BaseSettings):
 
     request_timeout_seconds: int = Field(default=120, alias="SGEN_REQUEST_TIMEOUT")
 
-    jwt_issuer: str = _env("JWT_ISSUER", "http://127.0.0.1:8080/realms/sgen-test")
+    jwt_issuer: str = _env("JWT_ISSUER", "http://127.0.0.1:8081/realms/sgen-test")
     jwt_audience: str = _env("JWT_AUDIENCE", "account")
     jwt_algorithms: tuple[str, ...] = tuple(
         os.getenv("JWT_ALGORITHMS", "RS256").split(",")
     )
     jwt_jwks_url: str = _env(
         "JWT_JWKS_URL",
-        "http://127.0.0.1:8080/realms/sgen-test/protocol/openid-connect/certs",
+        "http://127.0.0.1:8081/realms/sgen-test/protocol/openid-connect/certs",
     )
     jwt_public_key: str = _env("JWT_PUBLIC_KEY", "public_key")
 
