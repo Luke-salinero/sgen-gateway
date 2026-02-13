@@ -29,10 +29,10 @@ async def submit_job(
     authorization: Optional[str] = Header(default=None),
 ):
     try:
-        # ident = authenticate_request(authorization)
-        #
-        # if not ident:
-        #     raise HTTPException(status_code=400, detail="Invalid bearer token")
+        ident = authenticate_request(authorization)
+
+        if not ident:
+            raise HTTPException(status_code=400, detail="Invalid bearer token")
 
         jwt = extract_bearer_token(authorization)
         entitlement = call_entitlements(

@@ -16,7 +16,7 @@ async def get_results(
     authorization: Optional[str] = Header(default=None),
 ):
     try:
-        #ident = authenticate_request(authorization)
+        ident = authenticate_request(authorization)
         jwt = extract_bearer_token(authorization)
 
         entitlement = call_entitlements(jwt_token=jwt, request_id=None, timeout_s=15)
