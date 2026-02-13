@@ -1,3 +1,4 @@
+from sysconfig import expand_makefile_vars
 from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
@@ -14,6 +15,7 @@ router = APIRouter(prefix="", tags=["sgen"])
 async def get_status(
     job_id: str,
     authorization: Optional[str] = Header(default=None),
+    example_count: int = 1,
 ):
     try:
         ident = authenticate_request(authorization)
@@ -27,7 +29,7 @@ async def get_status(
             )
 
         results = await worker.get_public_status_if_completed(
-            job_id=job_id, subject_id=subject_id
+            job_id=job_id, subject_id=subject_id, example_count=example_count
         )
 
         if results is None:

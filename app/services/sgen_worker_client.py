@@ -27,12 +27,12 @@ class SGenWorkerClient:
         return None
 
     async def get_public_status_if_completed(
-        self, *, job_id: str, subject_id: str
+        self, *, job_id: str, subject_id: str, example_count: int = 1
     ) -> Optional[Dict[str, Any]]:
         url = f"http://{self.base_url}:8002/status/{job_id}"
         headers = {"Api-Key-Owner": subject_id, "Accept": "application/json"}
         async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.get(url, headers=headers)
+            resp = await client.get(url, headers=headers, params={"example_count": example_count})
 
         if resp.status_code == 200:
             return resp.json()
