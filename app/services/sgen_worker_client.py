@@ -13,7 +13,6 @@ class SGenWorkerClient:
     ) -> Optional[Dict[str, Any]]:
         url = f"{self.base_url}/results/{job_id}"
         headers = {"Api-Key-Owner": subject_id, "Accept": "application/json"}
-        print(url,headers)
         async with httpx.AsyncClient(timeout=15.0) as client:
             resp = await client.get(url, headers=headers)
 
