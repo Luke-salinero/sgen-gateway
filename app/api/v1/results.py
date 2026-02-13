@@ -4,7 +4,7 @@ from fastapi import APIRouter, Header, HTTPException
 
 from app.services.entitlement_request import call_entitlements
 from app.services.sgen_worker_client import SGenWorkerClient
-from app.util.extract_bearer import extract_bearer_token
+from app.util import extract_bearer_token, authenticate_request
 
 worker = SGenWorkerClient()
 router = APIRouter(prefix="", tags=["sgen"])
@@ -16,10 +16,12 @@ async def get_results(
     authorization: Optional[str] = Header(default=None),
 ):
     try:
+        ident = authenticate_request(authorization)
         jwt = extract_bearer_token(authorization)
+
         entitlement = call_entitlements(jwt_token=jwt, request_id=None, timeout_s=15)
         subject_id = entitlement.get("subject_id")
-        if not subject_id:
+        if not subject_id or not ident:
             raise HTTPException(
                 status_code=403, detail="Missing subject_id in entitlements"
             )

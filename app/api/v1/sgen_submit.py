@@ -11,7 +11,7 @@ from app.models import (
 from app.services.entitlement_enforce import enforce_entitlements
 from app.services.entitlement_request import call_entitlements
 from app.services.sgen_controller_client import SGenControllerClient
-from app.util.extract_bearer import extract_bearer_token
+from app.util import extract_bearer_token, authenticate_request
 
 router = APIRouter(prefix="", tags=["sgen"])
 
@@ -29,6 +29,11 @@ async def submit_job(
     authorization: Optional[str] = Header(default=None),
 ):
     try:
+        ident = authenticate_request(authorization)
+
+        if not ident:
+            raise HTTPException(status_code=400, detail="Invalid bearer token")
+
         jwt = extract_bearer_token(authorization)
         entitlement = call_entitlements(
             jwt_token=jwt,
