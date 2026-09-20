@@ -63,23 +63,10 @@ async def submit_job(
             detail=f"sgen-controller unavailable: {exc}",
         ) from exc
 
-
-@router.get(
-    "/get_job_status/{job_id}",
-    response_model=SGenSubmitResponse,
-)
-async def get_job_status(job_id: str):
-    try:
-        job = await controller.get_job(job_id)
-        return SGenSubmitResponse(
-            job_id=job.job_id,
-            status=job.status,
-            mode=job.mode,
-            result=job.result,
-            error=job.error,
-        )
-    except Exception as exc:
-        raise HTTPException(
-            status_code=502,
-            detail=f"sgen-controller unavailable: {exc}",
-        ) from exc
+# NOTE: an earlier, unauthenticated `GET /get_job_status/{job_id}` lived here.
+# It forwarded straight to sgen-controller with no bearer-token check and no
+# entitlement/ownership check, so any caller who learned a job_id could read
+# another subject's job status, result, and error payload. The authenticated,
+# ownership-scoped equivalents are `status.router` (`/status/{job_id}`) and
+# `results.router` (`/results/{job_id}`), which the SDK already uses
+# exclusively (see sgen-sdk's client.py) - removed rather than patched.
